@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkLog</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <main class="container">
+        <h1>WorkLog</h1>
+        <p>勤怠・有給休暇管理システム</p>
+
+        <button id="check-db">データベース接続確認</button>
+        <p id="result"></p>
+    </main>
+
+    <script>
+        document.getElementById("check-db")
+            .addEventListener("click", async () => {
+                const result = document.getElementById("result");
+            
+                try{
+                    const response = await fetch("/api/health");
+                    const data = await response.json();
+
+                    if (response.ok && data.status === "ok") {
+                        result.textContent = "PostgreSQL 接続成功";
+                    } else {
+                        result.textContent = "PostgreSQL 接続失敗";
+                    }
+                } catch (error) {
+                    result.textContent = "サーバ通信エラー";
+                }
+            });
+    </script>
+</body>
+</html>

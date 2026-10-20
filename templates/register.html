@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新規登録 | WorkLog</title>
+    <link rel="style" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <main class="container">
+        <h1>新規登録</h1>
+        <p>WorkLogのアカウントを作成します。</p>
+
+        <form id="register-form">
+            <div>
+                <label for="username">ユーザー名</label>
+                <input type="text" id="username"
+                       minlength="3" maxlength="50"
+                       autocomplete="username" required>
+            </div>
+            <div>
+                <label for="password">パスワード</label>
+                <input type="password" id="password"
+                       minlength="8" maxlength="128"
+                       autocomplete="new-password" required>
+            </div>
+            <div>
+                <label for="password-confirm">パスワード（確認）</label>
+                <input type="password" id="password-confirm"
+                       autocomplete="new-password" required>
+            </div>
+            <button type="submit">登録する</button>
+        </form>
+        <p id="result" role="status" aria-live="polite"></p>
+    </main>
+    <script src="{{ url_for('static', filename='js/register.js') }}"></script>
+</body>
+</html>
