@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン | WordLog</title>
+</head>
+<body>
+    <h1>WorkLog</h1>
+    <h2>ログイン</h2>
+
+    <form id="login-form">
+        <div>
+            <label for="username">ユーザー名</label>
+            <input type="text" name="username" id="username" autocomplete="username" required>
+        </div>
+        <div>
+            <label for="password">パスワード</label>
+            <input type="password" name="password" id="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit">ログイン</button>
+    </form>
+
+    <p id="message" role="status" aria-live="polite"></p>
+
+    <p>
+        アカウントをお持ちでない方は
+        <a href="/register">新規登録</a>
+    </p>
+
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, jsonify, current_app
+from flask import Blueprint, render_template, jsonify, current_app, session, redirect, url_for
 from db import get_connection
 
 main_bp = Blueprint("main", __name__)
@@ -29,3 +29,10 @@ def health():
             "status": "error",
             "database": "unavailable"
         }), 503
+
+@main_bp.route("/dashboard", methods=["GET"])
+def dashboard():
+    if "user_id" not in session:
+        return redirect(url_for("auth.login_page"))
+
+    return render_template("dashboard.html")

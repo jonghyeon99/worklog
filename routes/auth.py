@@ -1,7 +1,7 @@
 import re
-from flask import Blueprint, request, jsonify, render_template, current_app
+from flask import Blueprint, request, jsonify, render_template, current_app, session
 from psycopg.errors import UniqueViolation
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from db import get_connection
 
 auth_bp = Blueprint("auth", __name__)
@@ -113,3 +113,72 @@ def register():
         return jsonify({
             "error": "登録処理中にエラーが発生しました。"
         }), 500
+
+@auth_bp.route("/login", methods=["GET"])
+def login_page():
+    return render_template("login.html")
+
+@auth_bp.route("/api/login", methods=["POST"])
+def login():
+    data = request.get_json(silent=True)
+
+    if not isinstance(data, dict):
+        return jsonify({
+            "error": "リクエスト形式が正しくありません。"
+        }), 400
+
+    username = data.get("username")
+    password = data.get("password")
+
+    if not isinstance(username, str) or not isinstance(password, str):
+        return jsonify({
+            "error": "ユーザー名とパスワードを入力してください。"
+        }), 400
+
+    username = username.strip()
+
+    if not username or not password:
+        return jsonify({
+            "error": "ユーザー名とパスワードを入力してください。"
+        }), 400
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT id, password_hash
+                    FROM USERS
+                    WHERE username = %s
+                    """,
+                    (username,)
+                )
+                user = cur.fetchone()
+
+        if user is None or not check_password_hash(user[1], password):
+            return jsonify({
+                "error": "ユーザー名またはパスワードが正しくありません。"
+            }), 401
+
+        session.clear()
+        session["user_id"] = user[0]
+
+        return jsonify({
+            "message": "ログインしました。",
+            "redirect": "/dashboard"
+        }), 200
+
+    except Exception:
+        current_app.logger.exception("ログイン処理でエラーが発生しました。")
+        return jsonify({
+            "error": "ログイン処理中にエラーが発生しました。"
+        }), 500
+
+@auth_bp.route("/api/logout", methods=["POST"])
+def logout():
+    session.clear()
+
+    return jsonify({
+        "message": "ログアウトしました。",
+        "redirect": "/login"
+    }), 200
