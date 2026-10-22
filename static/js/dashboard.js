@@ -5,6 +5,10 @@ const attendanceForm = document.getElementById("attendance-form");
 const formMessage = document.getElementById("form-message");
 const modalTitle = document.getElementById("modal-title");
 const saveButton = document.getElementById("save-button");
+const targetMonth = document.getElementById("target-month");
+const searchButton = document.getElementById("search-button");
+const totalWorkTime = document.getElementById("total-work-time");
+const workDays = document.getElementById("work-days");
 
 let attendanceRecords = [];
 let editingId = null;
@@ -18,11 +22,20 @@ function getLocalDate() {
     return `${year}-${month}-${day}`;
 }
 
+targetMonth.value = getLocalDate().slice(0, 7);
+
 async function loadAttendance() {
     listMessage.textContent = "";
 
+    if (!targetMonth.value) {
+        listMessage.textContent = "対象年月を選択してください。";
+        return;
+    }
+
+    const [year, month] = targetMonth.value.split("-")
+
     try {
-        const response = await fetch("/api/attendance");
+        const response = await fetch(`/api/attendance?year=${year}&month=${month}`);
         const result = await response.json();
 
         if (!response.ok) {
@@ -31,7 +44,10 @@ async function loadAttendance() {
         }
 
         attendanceRecords = result.attendance;
+        workDays.textContent = `${result.work_days}日`;
+        totalWorkTime.textContent = result.total_work_time;
         renderAttendance();
+
     } catch (error) {
         listMessage.textContent = "勤怠一覧の取得中に通信エラーが発生しました。";
     }
@@ -61,6 +77,7 @@ function renderAttendance() {
             record.clock_out,
             record.break_start || "-",
             record.break_end || "-",
+            record.work_time,
             record.memo || "-"
         ];
 
@@ -71,6 +88,8 @@ function renderAttendance() {
         });
 
         const actionCell = document.createElement("td");
+
+        searchButton.addEventListener("click", loadAttendance);
 
         const editButton = document.createElement("button");
         editButton.type = "button";

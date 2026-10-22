@@ -18,6 +18,23 @@
             <button id="add-button" type="button">勤怠登録</button>
         </section>
         <p id="list-message" role="status" aria-live="polite"></p>
+        <div class="month-filter">
+            <label for="target-month">対象年月</label>
+            <div class="month-filter-controls">
+                <input type="month" id="target-month">
+                <button type="button" id="search-button">検索</button>
+            </div>
+        </div>
+        <div class="work-summary">
+            <div class="summary-item">
+                <p>勤務日数</p>
+                <strong id="work-days">0日</strong>
+            </div>
+            <div class="summary-item">
+                <p>月間勤務時間</p>
+                <strong id="total-work-time">0時間00分</strong>
+            </div>
+        </div>
         <div class="table-wrapper">
             <table>
                 <thead>
@@ -27,6 +44,7 @@
                         <th>退勤</th>
                         <th>休憩開始</th>
                         <th>休憩終了</th>
+                        <th>実働時間</th>
                         <th>メモ</th>
                         <th>操作</th>
                     </tr>

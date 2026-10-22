@@ -70,6 +70,55 @@ button:disabled {
     background: #1d4ed8;
 }
 
+.month-filter {
+    margin-bottom: 20px;
+}
+
+.month-filter label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.month-filter-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.month-filter-controls input[type="month"] {
+    width: 200px;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.month-filter-controls button {
+    width: auto;
+    flex-shrink: 0;
+}
+
+.work-summary {
+    display: flex;
+    gap: 16px;
+    margin: 20px 0;
+}
+
+.summary-item {
+    flex: 1;
+    padding: 20px;
+    background-color: #f5f6f8;
+    border-radius: 10px;
+}
+
+.summary-item p {
+    margin: 0 0 10px;
+    color: #666;
+    font-size: 14px;
+}
+
+.summary-item strong {
+    font-size: 24px;
+}
+
 .table-wrapper {
     overflow-x: auto;
     background: white;

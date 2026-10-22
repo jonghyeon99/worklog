@@ -1,7 +1,8 @@
-from datetime import date, time
+from datetime import date, time, datetime
 from flask import Blueprint, jsonify, request, session, current_app
 from psycopg.errors import UniqueViolation
 from db import get_connection
+import calendar
 
 attendance_bp = Blueprint("attendance", __name__)
 
@@ -84,6 +85,26 @@ def attendance_list():
             "error": "ログインが必要です。"
         }), 401
 
+    today = date.today()
+
+    try:
+        year = int(request.args.get("year", today.year))
+        month = int(request.args.get("month", today.month))
+
+        if year < 1 or year > 9999 or month < 1 or month > 12:
+            return jsonify({
+                "error": "年月が正しくありません。"
+            }), 400
+
+        last_day = calendar.monthrange(year, month)[1]
+        start_date = date(year, month, 1)
+        end_date = date(year, month, last_day)
+
+    except ValueError:
+        return jsonify({
+            "error": "年月が正しくありません。"
+        }), 400
+
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
@@ -92,15 +113,40 @@ def attendance_list():
                     SELECT id, work_date, clock_in, clock_out,
                            break_start, break_end, memo
                     FROM attendance
-                    WHERE user_id = %s
+                    WHERE user_id = %s AND work_date BETWEEN %s AND %s
                     ORDER BY work_date DESC
                     """,
-                    (user_id,)
+                    (user_id, start_date, end_date)
                 )
                 rows = cur.fetchall()
 
+        attendance_list = []
+        total_work_minutes = 0
+
+        for row in rows:
+            work_minutes = calculate_work_minutes(row[2], row[3], row[4], row[5])
+
+            total_work_minutes += work_minutes
+
+            attendance_list.append({
+                "id": row[0],
+                "work_date": row[1].isoformat(),
+                "clock_in": row[2].strftime("%H:%M"),
+                "clock_out": row[3].strftime("%H:%M"),
+                "break_start": row[4].strftime("%H:%M") if row[4] else None,
+                "break_end": row[5].strftime("%H:%M") if row[5] else None,
+                "memo": row[6] or "",
+                "work_minutes": work_minutes,
+                "work_time": format_work_minutes(work_minutes)
+            })
+
         return jsonify({
-            "attendance": [format_attendance(row) for row in rows]
+            "year": year,
+            "month": month,
+            "attendance": attendance_list,
+            "work_days": len(attendance_list),
+            "total_work_minutes": total_work_minutes,
+            "total_work_time": format_work_minutes(total_work_minutes)
         }), 200
 
     except Exception:
@@ -307,3 +353,40 @@ def attendance_settings():
         return jsonify({
             "error": "勤務時間設定を取得できませんでした。"
         }), 500
+
+def calculate_work_minutes(clock_in, clock_out, break_start, break_end):
+    start = datetime.combine(date.today(), clock_in)
+    end = datetime.combine(date.today(), clock_out)
+
+    work_minutes = int((end - start).total_seconds() // 60)
+
+    if break_start is not None and break_end is not None:
+        break_start_dt = datetime.combine(date.today(), break_start)
+        break_end_dt = datetime.combine(date.today(), break_end)
+
+        break_minutes = int((break_end_dt - break_start_dt).total_seconds() // 60)
+
+        work_minutes -= break_minutes
+    
+    return work_minutes
+
+def format_work_minutes(minutes):
+    hours = minutes // 60
+    remaining_minutes = minutes % 60
+
+    return f"{hours}時間{remaining_minutes:02d}分"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
