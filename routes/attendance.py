@@ -41,9 +41,12 @@ def validate_attendance(data):
 
     if (break_start is None) != (break_end is None):
         return None, "休憩開始と終了は両方入力してください。"
-
+    
     if break_start is not None:
-        if not (clock_in <= break_start < break_end <= clock_out):
+        if break_start >= break_end:
+            return None, "休憩終了時刻は休憩開始時刻より後にしてください。"
+
+        if break_start < clock_in or break_end > clock_out:
             return None, "休憩時間は勤務時間内に設定してください。"
 
     if not isinstance(memo, str):
@@ -263,3 +266,44 @@ def attendance_delete(attendance_id):
         return jsonify({
             "error": "勤怠記録を削除できませんでした。"
             }), 500
+
+@attendance_bp.route("/api/attendance/settings", methods=["GET"])
+def attendance_settings():
+    user_id = session.get("user_id")
+
+    if user_id is None:
+        return jsonify({
+            "error": "ログインが必要です。"
+            }), 401
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT default_clock_in, default_clock_out,
+                           default_break_start, default_break_end
+                    FROM user_settings
+                    WHERE user_id = %s
+                    """, 
+                    (user_id,)
+                )
+                row = cur.fetchone()
+
+        if row is None:
+            return jsonify({
+                "error": "勤務時間の設定が見つかりません。"
+            }), 404
+
+        return jsonify({
+            "clock_in": row[0].strftime("%H:%M"),
+            "clock_out": row[1].strftime("%H:%M"),
+            "break_start": row[2].strftime("%H:%M") if row[2] else "",
+            "break_end": row[3].strftime("%H:%M") if row[3] else "",
+        }), 200
+
+    except Exception:
+        current_app.logger.exception("勤務時間設定の取得に失敗しました。")
+        return jsonify({
+            "error": "勤務時間設定を取得できませんでした。"
+        }), 500
