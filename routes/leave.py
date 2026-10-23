@@ -47,7 +47,7 @@ def create_leave_grant():
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    INSERT INTO leave_grants (
+                    INSERT INTO paid_leave_grant (
                         user_id,
                         granted_date,
                         granted_days,
@@ -93,8 +93,8 @@ def get_leave_grants():
                         g.granted_days,
                         g.expires_date,
                         COALESCE(SUM(u.used_days), 0) AS used_days
-                    FROM leave_grants AS g
-                    LEFT JOIN leave_usage AS u
+                    FROM paid_leave_grant AS g
+                    LEFT JOIN paid_leave_usage AS u
                         ON g.id = u.grant_id
                         AND g.user_id = u.user_id
                     WHERE g.user_id = %s
@@ -181,7 +181,7 @@ def create_leave_usage():
                 cur.execute(
                     """
                     SELECT id
-                    FROM users
+                    FROM app_user
                     WHERE id = %s
                     FOR UPDATE
                     """,
@@ -191,7 +191,7 @@ def create_leave_usage():
                 cur.execute(
                     """
                     SELECT id
-                    FROM leave_usage
+                    FROM paid_leave_usage
                     WHERE user_id = %s
                       AND leave_date = %s
                     LIMIT 1
@@ -210,8 +210,8 @@ def create_leave_usage():
                         g.id,
                         g.granted_days -
                             COALESCE(SUM(u.used_days), 0) AS remaining_days
-                    FROM leave_grants AS g
-                    LEFT JOIN leave_usage AS u
+                    FROM paid_leave_grant AS g
+                    LEFT JOIN paid_leave_usage AS u
                         ON g.id = u.grant_id
                         AND g.user_id = u.user_id
                     WHERE g.user_id = %s
@@ -239,7 +239,7 @@ def create_leave_usage():
 
                 cur.execute(
                     """
-                    INSERT INTO leave_usage (
+                    INSERT INTO paid_leave_usage (
                         user_id,
                         grant_id,
                         leave_date,

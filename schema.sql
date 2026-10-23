@@ -1,7 +1,7 @@
 -- WorkLog PostgreSQL schema v1
 -- Execute in a newly created worklog_db database.
 
-CREATE TABLE users (
+CREATE TABLE app_user (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
@@ -10,9 +10,9 @@ CREATE TABLE users (
     CONSTRAINT users_username_not_blank CHECK (length(btrim(username)) > 0)
 );
 
-CREATE TABLE user_settings (
+CREATE TABLE work_setting (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL UNIQUE REFERENCES app_user(id) ON DELETE CASCADE,
     default_clock_in TIME NOT NULL DEFAULT '09:00',
     default_clock_out TIME NOT NULL DEFAULT '18:00',
     default_break_start TIME DEFAULT '12:00',
@@ -29,9 +29,9 @@ CREATE TABLE user_settings (
     )
 );
 
-CREATE TABLE attendance (
+CREATE TABLE work_record (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
     work_date DATE NOT NULL,
     clock_in TIME NOT NULL,
     clock_out TIME NOT NULL,
@@ -51,9 +51,9 @@ CREATE TABLE attendance (
     )
 );
 
-CREATE TABLE leave_grants (
+CREATE TABLE paid_leave_grant (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
     granted_date DATE NOT NULL,
     granted_days NUMERIC(4,1) NOT NULL,
     expires_date DATE NOT NULL,
@@ -64,9 +64,9 @@ CREATE TABLE leave_grants (
     CONSTRAINT grants_id_user_unique UNIQUE (id, user_id)
 );
 
-CREATE TABLE leave_usage (
+CREATE TABLE paid_leave_usage (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
     grant_id INTEGER NOT NULL,
     leave_date DATE NOT NULL,
     used_days NUMERIC(3,1) NOT NULL,
@@ -75,7 +75,7 @@ CREATE TABLE leave_usage (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT usage_grant_same_user FOREIGN KEY (grant_id, user_id)
-        REFERENCES leave_grants(id, user_id) ON DELETE RESTRICT,
+        REFERENCES paid_leave_grant(id, user_id) ON DELETE RESTRICT,
     CONSTRAINT usage_type_days_match CHECK (
         (leave_type = 'FULL' AND used_days = 1.0)
         OR (leave_type IN ('AM', 'PM') AND used_days = 0.5)
@@ -83,9 +83,9 @@ CREATE TABLE leave_usage (
     CONSTRAINT usage_one_per_day UNIQUE (user_id, leave_date)
 );
 
-CREATE INDEX attendance_user_date_idx ON attendance(user_id, work_date DESC);
-CREATE INDEX leave_grants_user_dates_idx ON leave_grants(user_id, granted_date, expires_date);
-CREATE INDEX leave_usage_grant_idx ON leave_usage(grant_id);
+CREATE INDEX attendance_user_date_idx ON work_record(user_id, work_date DESC);
+CREATE INDEX leave_grants_user_dates_idx ON paid_leave_grant(user_id, granted_date, expires_date);
+CREATE INDEX leave_usage_grant_idx ON paid_leave_usage(grant_id);
 
 -- PostgreSQL DEFAULT NOW() only covers inserts; this trigger covers updates.
 CREATE OR REPLACE FUNCTION set_updated_at()
@@ -96,13 +96,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER users_updated_at BEFORE UPDATE ON users
+CREATE TRIGGER users_updated_at BEFORE UPDATE ON app_user
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-CREATE TRIGGER user_settings_updated_at BEFORE UPDATE ON user_settings
+CREATE TRIGGER user_settings_updated_at BEFORE UPDATE ON work_setting
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-CREATE TRIGGER attendance_updated_at BEFORE UPDATE ON attendance
+CREATE TRIGGER attendance_updated_at BEFORE UPDATE ON work_record
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-CREATE TRIGGER leave_grants_updated_at BEFORE UPDATE ON leave_grants
+CREATE TRIGGER leave_grants_updated_at BEFORE UPDATE ON paid_leave_grant
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-CREATE TRIGGER leave_usage_updated_at BEFORE UPDATE ON leave_usage
+CREATE TRIGGER leave_usage_updated_at BEFORE UPDATE ON paid_leave_usage
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();

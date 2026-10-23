@@ -79,7 +79,7 @@ def register():
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    INSERT INTO users (username, password_hash)
+                    INSERT INTO app_user (username, password_hash)
                     VALUES (%s, %s)
                     RETURNING id
                     """,
@@ -90,7 +90,7 @@ def register():
 
                 cur.execute(
                     """
-                    INSERT INTO user_settings (user_id)
+                    INSERT INTO work_setting (user_id)
                     VALUES (%s)
                     """,
                     (user_id,)
@@ -148,7 +148,7 @@ def login():
                 cur.execute(
                     """
                     SELECT id, password_hash
-                    FROM USERS
+                    FROM app_user
                     WHERE username = %s
                     """,
                     (username,)

@@ -112,7 +112,7 @@ def attendance_list():
                     """
                     SELECT id, work_date, clock_in, clock_out,
                            break_start, break_end, memo
-                    FROM attendance
+                    FROM work_record
                     WHERE user_id = %s AND work_date BETWEEN %s AND %s
                     ORDER BY work_date DESC
                     """,
@@ -176,7 +176,7 @@ def attendance_create():
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    INSERT INTO attendance (
+                    INSERT INTO work_record (
                         user_id, work_date, clock_in, clock_out,
                         break_start, break_end, memo
                     )
@@ -232,7 +232,7 @@ def attendance_update(attendance_id):
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    UPDATE attendance
+                    UPDATE work_record
                     SET work_date = %s,
                         clock_in = %s,
                         clock_out = %s,
@@ -290,7 +290,7 @@ def attendance_delete(attendance_id):
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    DELETE FROM attendance
+                    DELETE FROM work_record
                     WHERE id = %s AND user_id = %s
                     RETURNING id
                     """,
@@ -329,7 +329,7 @@ def attendance_settings():
                     """
                     SELECT default_clock_in, default_clock_out,
                            default_break_start, default_break_end
-                    FROM user_settings
+                    FROM work_setting
                     WHERE user_id = %s
                     """, 
                     (user_id,)
