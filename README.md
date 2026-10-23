@@ -68,6 +68,12 @@ FlaskとPostgreSQLを使用した勤怠・有給休暇管理Webアプリケー�
 
 AWS EC2（Ubuntu）上にアプリケーションを配置し、NginxとGunicornを使用して公開しています。
 
-`Client → Nginx → Gunicorn → Flask → PostgreSQL`
+**公開URL：** https://btworklog.duckdns.org
 
-アプリケーションのプロセスはsystemdで管理しています。
+`Client（HTTPS）→ Nginx → Gunicorn → Flask → PostgreSQL`
+
+- DuckDNSによる無料ドメインの設定
+- Let's EncryptによるSSL/TLS証明書の導入
+- HTTPからHTTPSへの自動リダイレクト
+- Certbotによる証明書の自動更新
+- systemdによるアプリケーションのプロセス管理

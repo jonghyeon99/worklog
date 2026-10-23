@@ -15,7 +15,7 @@ app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
-    SESSION_COOKIE_SECURE=False,
+    SESSION_COOKIE_SECURE=True,
 )
 
 app.register_blueprint(main_bp)
