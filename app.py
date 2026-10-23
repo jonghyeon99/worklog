@@ -4,6 +4,7 @@ from flask import Flask
 from routes.auth import auth_bp
 from routes.main import main_bp
 from routes.attendance import attendance_bp
+from routes.leave import leave_bp
 
 load_dotenv()
 
@@ -20,6 +21,7 @@ app.config.update(
 app.register_blueprint(main_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(attendance_bp)
+app.register_blueprint(leave_bp)
 
 
 if __name__ == "__main__":
