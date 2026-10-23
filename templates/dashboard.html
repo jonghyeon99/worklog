@@ -1,23 +1,39 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ダッシュボード | WorkLog</title>
+    <title>勤怠管理 | WorkLog</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 </head>
 <body>
     <header class="header">
         <h1>WorkLog</h1>
+
+        <nav>
+            <a href="{{ url_for('main.dashboard') }}" aria-current="page">勤怠管理</a>
+            <a href="{{ url_for('main.leave_page') }}">有給休暇管理</a>
+        </nav>
+
         <button id="logout-button" type="button">ログアウト</button>
     </header>
-    
+
     <main class="container">
         <section class="section-header">
-            <h2>勤怠一覧</h2>
+            <div>
+                <h1>勤怠一覧</h1>
+                <p class="page-description">
+                    日々の出退勤時刻と勤務時間を管理できます。
+                </p>
+            </div>
+
             <button id="add-button" type="button">勤怠登録</button>
         </section>
+
         <p id="list-message" role="status" aria-live="polite"></p>
+
         <div class="month-filter">
             <label for="target-month">対象年月</label>
             <div class="month-filter-controls">
@@ -25,75 +41,94 @@
                 <button type="button" id="search-button">検索</button>
             </div>
         </div>
+
         <div class="work-summary">
             <div class="summary-item">
                 <p>勤務日数</p>
                 <strong id="work-days">0日</strong>
             </div>
+
             <div class="summary-item">
                 <p>月間勤務時間</p>
                 <strong id="total-work-time">0時間00分</strong>
             </div>
         </div>
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>日付</th>
-                        <th>出勤</th>
-                        <th>退勤</th>
-                        <th>休憩開始</th>
-                        <th>休憩終了</th>
-                        <th>実働時間</th>
-                        <th>メモ</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody id="attendance-list"></tbody>
-            </table>
-        </div>
+
+        <section class="content-section attendance-section">
+            <div class="section-header">
+                <h2>勤怠履歴</h2>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日付</th>
+                            <th>出勤</th>
+                            <th>退勤</th>
+                            <th>休憩開始</th>
+                            <th>休憩終了</th>
+                            <th>実働時間</th>
+                            <th>メモ</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendance-list"></tbody>
+                </table>
+            </div>
+        </section>
     </main>
+
     <dialog id="attendance-modal">
         <form id="attendance-form">
             <div class="modal-header">
                 <h2 id="modal-title">勤怠登録</h2>
-                <button id="close-button" type="button" aria-label="閉じる">x</button>
+                <button id="close-button" type="button" aria-label="閉じる">×</button>
             </div>
+
             <div class="form-group">
                 <label for="work-date">日付</label>
                 <input type="date" id="work-date" required>
             </div>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="clock-in">出勤時刻</label>
                     <input type="time" id="clock-in" required>
                 </div>
+
                 <div class="form-group">
                     <label for="clock-out">退勤時刻</label>
                     <input type="time" id="clock-out" required>
                 </div>
             </div>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="break-start">休憩開始</label>
                     <input type="time" id="break-start">
                 </div>
+
                 <div class="form-group">
                     <label for="break-end">休憩終了</label>
                     <input type="time" id="break-end">
                 </div>
             </div>
+
             <div class="form-group">
                 <label for="memo">メモ</label>
                 <textarea id="memo" rows="3" maxlength="1000"></textarea>
             </div>
+
             <p id="form-message" role="status" aria-live="polite"></p>
+
             <div class="modal-actions">
                 <button id="cancel-button" type="button">キャンセル</button>
                 <button id="save-button" type="submit">保存</button>
             </div>
         </form>
     </dialog>
+
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 </body>
 </html>

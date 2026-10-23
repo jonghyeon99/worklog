@@ -60,7 +60,8 @@ function renderAttendance() {
         const row = document.createElement("tr");
         const cell = document.createElement("td");
 
-        cell.colSpan = 7;
+        cell.colSpan = 8;
+        cell.className = "empty-message";
         cell.textContent = "勤怠記録がありません。";
 
         row.appendChild(cell);
@@ -88,8 +89,6 @@ function renderAttendance() {
         });
 
         const actionCell = document.createElement("td");
-
-        searchButton.addEventListener("click", loadAttendance);
 
         const editButton = document.createElement("button");
         editButton.type = "button";
@@ -266,5 +265,7 @@ document.getElementById("logout-button").addEventListener(
         }
     }
 );
+
+searchButton.addEventListener("click", loadAttendance);
 
 loadAttendance();

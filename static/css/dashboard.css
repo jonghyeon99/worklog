@@ -1,82 +1,12 @@
 
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    background: #f5f6f8;
-    color: #222;
-    font-family: Arial, sans-serif;
-}
-
-button {
-    padding: 9px 14px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background: white;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #f0f0f0;
-}
-
-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 32px;
-    background: white;
-    border-bottom: 1px solid #ddd;
-}
-
-.header h1 {
-    margin: 0;
-    font-size: 24px;
-}
-
-.container {
-    max-width: 1100px;
-    margin: 40px auto;
-    padding: 0 20px;
-}
-
-.section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-}
-
-.section-header h2 {
-    margin: 0;
-}
-
-#add-button,
-#save-button {
-    background: #2563eb;
-    color: white;
-    border-color: #2563eb;
-}
-
-#add-button:hover,
-#save-button:hover {
-    background: #1d4ed8;
-}
-
 .month-filter {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .month-filter label {
     display: block;
     margin-bottom: 8px;
+    font-weight: 600;
 }
 
 .month-filter-controls {
@@ -88,100 +18,27 @@ button:disabled {
 .month-filter-controls input[type="month"] {
     width: 200px;
     max-width: 100%;
-    box-sizing: border-box;
-}
-
-.month-filter-controls button {
-    width: auto;
-    flex-shrink: 0;
+    padding: 10px 12px;
 }
 
 .work-summary {
-    display: flex;
-    gap: 16px;
-    margin: 20px 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.summary-item {
-    flex: 1;
-    padding: 20px;
-    background-color: #f5f6f8;
-    border-radius: 10px;
+.attendance-section {
+    margin-top: 36px;
 }
 
-.summary-item p {
-    margin: 0 0 10px;
-    color: #666;
-    font-size: 14px;
+.attendance-section .section-header {
+    margin-bottom: 22px;
 }
 
-.summary-item strong {
-    font-size: 24px;
-}
-
-.table-wrapper {
-    overflow-x: auto;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th,
-td {
-    padding: 14px;
-    border-bottom: 1px solid #eee;
-    text-align: left;
-    white-space: nowrap;
-}
-
-th {
-    background: #f9fafb;
-}
-
-td button {
-    margin-right: 6px;
-}
-
-.delete-button {
-    color: #dc2626;
-}
-
-dialog {
-    width: min(480px, calc(100% - 32px));
-    max-height: 90vh;
-    overflow-y: auto;
-    padding: 24px;
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-}
-
-dialog::backdrop {
-    background: rgba(0, 0, 0, 0.45);
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.modal-header h2 {
+.attendance-section .section-header h2 {
     margin: 0;
 }
 
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 16px;
-    flex: 1;
+.attendance-section .table-wrapper {
+    margin-top: 0;
 }
 
 .form-row {
@@ -189,38 +46,62 @@ dialog::backdrop {
     gap: 16px;
 }
 
-input,
-textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font: inherit;
+.form-row .form-group {
+    flex: 1;
+    min-width: 0;
 }
 
-.modal-actions {
+.form-group {
     display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 20px;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
 }
 
-#form-message,
-#list-message {
-    color: #dc2626;
+#attendance-list td:last-child:not(.empty-message) {
+    white-space: nowrap;
+}
+
+#attendance-list td button {
+    padding: 6px 12px;
+    margin-right: 6px;
+    background: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    color: var(--brand-black);
+}
+
+#attendance-list td button:hover {
+    background: #eeeeee;
+}
+
+#attendance-list td .delete-button {
+    color: var(--danger);
+    border-color: #e6b0b0;
+}
+
+#attendance-list td .delete-button:hover {
+    background: #fff0f0;
+}
+
+#attendance-list td.empty-message {
+    padding: 32px 16px;
+    text-align: center;
+    color: var(--text-secondary);
+    white-space: normal;
 }
 
 @media (max-width: 600px) {
-    .header {
-        padding: 16px;
-    }
-
-    .container {
-        margin: 24px auto;
+    .work-summary {
+        grid-template-columns: 1fr;
     }
 
     .form-row {
         flex-direction: column;
         gap: 0;
+    }
+
+    .month-filter-controls {
+        flex-wrap: wrap;
     }
 }

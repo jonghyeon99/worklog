@@ -5,7 +5,10 @@ main_bp = Blueprint("main", __name__)
 
 @main_bp.route("/", methods=["GET"])
 def index():
-    return render_template("index.html")
+    if "user_id" in session:
+        return redirect(url_for("main.dashboard"))
+
+    return redirect(url_for("auth.login_page"))
 
 @main_bp.route("/api/health", methods=["GET"])
 def health():
@@ -36,3 +39,10 @@ def dashboard():
         return redirect(url_for("auth.login_page"))
 
     return render_template("dashboard.html")
+
+@main_bp.route("/leave", methods=["GET"])
+def leave_page():
+    if "user_id" not in session:
+        return redirect(url_for("auth.login_page"))
+
+    return render_template("leave.html")

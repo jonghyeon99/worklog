@@ -1,0 +1,159 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>有給休暇管理 | WorkLog</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/leave.css') }}">
+</head>
+<body>
+    <header class="header">
+        <h1>WorkLog</h1>
+        <nav aria-label="メインメニュー">
+            <a href="{{ url_for('main.dashboard') }}">勤怠管理</a>
+            <a href="{{ url_for('main.leave_page') }}" aria-current="page">有給休暇管理</a>
+        </nav>
+        <button id="logout-button" type="button">ログアウト</button>
+    </header>
+
+    <main class="container">
+        <section class="page-heading">
+            <h2>有給休暇管理</h2>
+            <p>有給休暇の付与日数と使用履歴を管理できます。</p>
+        </section>
+
+        <section class="summary" aria-label="有給休暇の集計">
+            <div class="summary-item">
+                <p>総付与日数</p>
+                <strong id="total-granted">0日</strong>
+            </div>
+            <div class="summary-item">
+                <p>総使用日数</p>
+                <strong id="total-used">0日</strong>
+            </div>
+            <div class="summary-item">
+                <p>残日数</p>
+                <strong id="total-remaining">0日</strong>
+            </div>
+        </section>
+
+        <p id="page-message" role="status" aria-live="polite"></p>
+
+        <section class="content-section">
+            <div class="section-header">
+                <h2>付与履歴</h2>
+                <button id="add-grant-button" type="button">付与登録</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>付与日</th>
+                            <th>付与日数</th>
+                            <th>使用日数</th>
+                            <th>残日数</th>
+                            <th>有効期限</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="grant-list"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="section-header">
+                <h2>使用履歴</h2>
+                <button id="add-usage-button" type="button">使用登録</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>使用日</th>
+                            <th>休暇区分</th>
+                            <th>使用日数</th>
+                            <th>対象付与日</th>
+                            <th>メモ</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usage-list"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <dialog id="grant-modal">
+        <form id="grant-form">
+            <div class="modal-header">
+                <h2 id="grant-modal-title">有給休暇付与登録</h2>
+                <button id="grant-close-button" type="button" aria-label="閉じる">×</button>
+            </div>
+
+            <div class="form-group">
+                <label for="granted-date">付与日</label>
+                <input id="granted-date" type="date" required>
+            </div>
+
+            <div class="form-group">
+                <label for="granted-days">付与日数</label>
+                <input id="granted-days" type="number" min="0.5" max="999" step="0.5" required>
+            </div>
+
+            <div class="form-group">
+                <label for="expires-date">有効期限</label>
+                <input id="expires-date" type="date" required>
+            </div>
+
+            <p id="grant-form-message" role="status" aria-live="polite"></p>
+
+            <div class="modal-actions">
+                <button id="grant-cancel-button" type="button">キャンセル</button>
+                <button id="grant-save-button" type="submit">保存</button>
+            </div>
+        </form>
+    </dialog>
+
+    <dialog id="usage-modal">
+        <form id="usage-form">
+            <div class="modal-header">
+                <h2 id="usage-modal-title">有給休暇使用登録</h2>
+                <button id="usage-close-button" type="button" aria-label="閉じる">×</button>
+            </div>
+
+            <div class="form-group">
+                <label for="leave-date">使用日</label>
+                <input id="leave-date" type="date" required>
+            </div>
+
+            <div class="form-group">
+                <label for="leave-type">休暇区分</label>
+                <select id="leave-type" required>
+                    <option value="FULL">全日（1日）</option>
+                    <option value="AM">午前半休（0.5日）</option>
+                    <option value="PM">午後半休（0.5日）</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="leave-memo">メモ</label>
+                <textarea id="leave-memo" rows="3" maxlength="1000"></textarea>
+            </div>
+
+            <p id="usage-form-message" role="status" aria-live="polite"></p>
+
+            <div class="modal-actions">
+                <button id="usage-cancel-button" type="button">キャンセル</button>
+                <button id="usage-save-button" type="submit">保存</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script src="{{ url_for('static', filename='js/leave.js') }}"></script>
+</body>
+</html>

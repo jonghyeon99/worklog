@@ -1,32 +1,69 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ログイン | WordLog</title>
+    <title>ログイン | WorkLog</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
 </head>
-<body>
-    <h1>WorkLog</h1>
-    <h2>ログイン</h2>
-
-    <form id="login-form">
-        <div>
-            <label for="username">ユーザー名</label>
-            <input type="text" name="username" id="username" autocomplete="username" required>
+<body class="auth-page">
+    <main class="auth-container">
+        <div class="auth-brand">
+            <h1>WorkLog</h1>
+            <p>勤怠・有給休暇管理システム</p>
         </div>
-        <div>
-            <label for="password">パスワード</label>
-            <input type="password" name="password" id="password" autocomplete="current-password" required>
-        </div>
-        <button type="submit">ログイン</button>
-    </form>
 
-    <p id="message" role="status" aria-live="polite"></p>
+        <section class="auth-card">
+            <div class="auth-heading">
+                <h2>ログイン</h2>
+                <p>アカウント情報を入力してください。</p>
+            </div>
 
-    <p>
-        アカウントをお持ちでない方は
-        <a href="/register">新規登録</a>
-    </p>
+            <form id="login-form">
+                <div class="auth-form-group">
+                    <label for="username">ユーザー名</label>
+                    <input
+                        type="text"
+                        name="username"
+                        id="username"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+
+                <div class="auth-form-group">
+                    <label for="password">パスワード</label>
+                    <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+
+                <p id="message" class="auth-message"
+                   role="status" aria-live="polite"></p>
+
+                <button class="auth-submit" type="submit">
+                    ログイン
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>
+                    アカウントをお持ちでない方は
+                    <a href="/register">新規登録</a>
+                </p>
+            </div>
+        </section>
+
+        <p class="auth-copyright">
+            WorkLog | 勤怠・有給休暇管理
+        </p>
+    </main>
 
     <script src="{{ url_for('static', filename='js/login.js') }}"></script>
 </body>
