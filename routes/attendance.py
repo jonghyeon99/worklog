@@ -113,31 +113,96 @@ def attendance_list():
                     SELECT id, work_date, clock_in, clock_out,
                            break_start, break_end, memo
                     FROM work_record
-                    WHERE user_id = %s AND work_date BETWEEN %s AND %s
+                    WHERE user_id = %s
+                      AND work_date BETWEEN %s AND %s
                     ORDER BY work_date DESC
                     """,
                     (user_id, start_date, end_date)
                 )
                 rows = cur.fetchall()
 
+                cur.execute(
+                    """
+                    SELECT default_clock_in, default_clock_out,
+                           default_break_start, default_break_end
+                    FROM work_setting
+                    WHERE user_id = %s
+                    """,
+                    (user_id,)
+                )
+                setting = cur.fetchone()
+
+                if setting is None:
+                    return jsonify({
+                        "error": "勤務時間の設定が見つかりません。"
+                    }), 404
+
+                cur.execute(
+                    """
+                    SELECT leave_date, leave_type
+                    FROM paid_leave_usage
+                    WHERE user_id = %s
+                      AND leave_date BETWEEN %s AND %s
+                    """,
+                    (user_id, start_date, end_date)
+                )
+                leave_rows = cur.fetchall()
+
+        standard_minutes = calculate_work_minutes(
+            setting[0], setting[1], setting[2], setting[3]
+        )
+
+        leave_map = {}
+
+        for leave_date, leave_type in leave_rows:
+            if leave_date in leave_map:
+                return jsonify({
+                    "error": "同じ日付に複数の休暇記録があります。"
+                }), 409
+
+            leave_map[leave_date] = leave_type
+
         attendance_list = []
         total_work_minutes = 0
+        total_overtime_minutes = 0
 
         for row in rows:
-            work_minutes = calculate_work_minutes(row[2], row[3], row[4], row[5])
+            work_date = row[1]
+            work_minutes = calculate_work_minutes(
+                row[2], row[3], row[4], row[5]
+            )
+
+            leave_type = leave_map.get(work_date)
+
+            if leave_type == "FULL":
+                return jsonify({
+                    "error": "全日休暇と勤怠記録が重複しています。"
+                }), 409
+
+            if leave_type in ("AM", "PM"):
+                required_minutes = standard_minutes // 2
+            else:
+                required_minutes = standard_minutes
+
+            overtime_minutes = max(
+                0, work_minutes - required_minutes
+            )
 
             total_work_minutes += work_minutes
+            total_overtime_minutes += overtime_minutes
 
             attendance_list.append({
                 "id": row[0],
-                "work_date": row[1].isoformat(),
+                "work_date": work_date.isoformat(),
                 "clock_in": row[2].strftime("%H:%M"),
                 "clock_out": row[3].strftime("%H:%M"),
                 "break_start": row[4].strftime("%H:%M") if row[4] else None,
                 "break_end": row[5].strftime("%H:%M") if row[5] else None,
                 "memo": row[6] or "",
                 "work_minutes": work_minutes,
-                "work_time": format_work_minutes(work_minutes)
+                "work_time": format_work_minutes(work_minutes),
+                "overtime_minutes": overtime_minutes,
+                "overtime_time": format_work_minutes(overtime_minutes)
             })
 
         return jsonify({
@@ -146,7 +211,9 @@ def attendance_list():
             "attendance": attendance_list,
             "work_days": len(attendance_list),
             "total_work_minutes": total_work_minutes,
-            "total_work_time": format_work_minutes(total_work_minutes)
+            "total_work_time": format_work_minutes(total_work_minutes),
+            "total_overtime_minutes": total_overtime_minutes,
+            "total_overtime": format_work_minutes(total_overtime_minutes)
         }), 200
 
     except Exception:

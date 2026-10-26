@@ -22,7 +22,7 @@
 }
 
 .work-summary {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .attendance-section {
@@ -257,32 +257,6 @@
 }
 
 @media (max-width: 600px) {
-    .calendar-section .section-header {
-        flex-wrap: wrap;
-        gap: 12px;
-    }
-
-    .calendar-day,
-    .calendar-empty {
-        min-height: 65px;
-    }
-
-    .calendar-day {
-        padding: 6px 1px;
-        gap: 3px;
-    }
-
-    .calendar-status {
-        font-size: 9px;
-        padding: 2px 0;
-    }
-
-    .calendar-navigation {
-        gap: 8px;
-    }
-}
-
-@media (max-width: 600px) {
     .work-summary {
         grid-template-columns: 1fr;
     }
@@ -304,6 +278,16 @@
     .calendar-day,
     .calendar-empty {
         min-height: 52px;
+    }
+
+    .calendar-day {
+        padding: 6px 1px;
+        gap: 3px;
+    }
+
+    .calendar-status {
+        font-size: 9px;
+        padding: 2px 0;
     }
 
     .calendar-navigation {

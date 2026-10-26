@@ -9,6 +9,7 @@ const targetMonth = document.getElementById("target-month");
 const searchButton = document.getElementById("search-button");
 const totalWorkTime = document.getElementById("total-work-time");
 const workDays = document.getElementById("work-days");
+const totalOvertime = document.getElementById("total-overtime");
 const calendarGrid = document.getElementById("attendance-calendar");
 const calendarMonth = document.getElementById("calendar-month");
 const calendarPrev = document.getElementById("calendar-prev");
@@ -53,7 +54,6 @@ async function loadAttendance() {
             leaveResponse.json()
         ]);
 
-        // 이전 달 요청이 늦게 도착해 화면을 덮어쓰는 문제 방지
         if (requestId !== attendanceRequestId) {
             return;
         }
@@ -67,6 +67,7 @@ async function loadAttendance() {
         attendanceRecords = attendanceResult.attendance;
         workDays.textContent = `${attendanceResult.work_days}日`;
         totalWorkTime.textContent = attendanceResult.total_work_time;
+        totalOvertime.textContent = attendanceResult.total_overtime;
 
         if (leaveResponse.ok) {
             leaveRecords = leaveResult.usage.filter(
